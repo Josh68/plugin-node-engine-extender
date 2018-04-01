@@ -28,7 +28,7 @@ function onPatternIterate(patternlab) {
 }
 
 function registerEvents(patternlab) {
-  patternlab.events.on('patternlab-build-pattern-start', onPatternIterate)
+  patternlab.events.on('patternlab-pattern-iteration-end', onPatternIterate)
 }
 
 /**
