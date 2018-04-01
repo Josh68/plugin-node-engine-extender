@@ -28,7 +28,7 @@ function onPatternIterate(patternlab) {
 }
 
 function registerEvents(patternlab) {
-  patternlab.events.on('patternlab-pattern-iteration-end', onPatternIterate)
+  patternlab.events.on('patternlab-build-pattern-start', onPatternIterate)
 }
 
 /**
@@ -56,13 +56,20 @@ function pluginInit(patternlab) {
     console.log(`no extension path at config.${configPath}`)
     process.exit(1)
   }
-  var pluginConfig = getPluginFrontendConfig()
+  
+  //write the plugin json to public/patternlab-components
+  var pluginConfig = getPluginFrontendConfig();
 
   //add the plugin config to the patternlab-object
   if (!patternlab.plugins) {
-    patternlab.plugins = []
+    patternlab.plugins = [];
   }
-  patternlab.plugins.push(pluginConfig)
+  patternlab.plugins.push(pluginConfig);
+  
+  //setup listeners if not already active. we also enable and set the plugin as initialized
+  if (!patternlab.config.plugins) {
+    patternlab.config.plugins = {};
+  }
 
   //setup listeners if not already active
   if (patternlab.config.plugins[pluginName] !== undefined &&
