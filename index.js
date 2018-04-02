@@ -1,5 +1,8 @@
 'use strict';
 const appRoot = require('app-root-path')
+const path = require('path')
+const fs = require('fs-extra')
+const glob = require('glob')
 const pluginName = 'plugin-node-engine-extender'
 const configPath = 'extensionPath'
 
@@ -59,12 +62,44 @@ function pluginInit(patternlab) {
   
   //write the plugin json to public/patternlab-components
   var pluginConfig = getPluginFrontendConfig();
+  var pluginConfigPathName = path.resolve(patternlab.config.paths.public.root,
+    'patternlab-components', 'packages');
+
+  try {
+    fs.outputFileSync(pluginConfigPathName + '/' + pluginName + '.json',
+      JSON.stringify(pluginConfig, null, 2));
+  } catch (ex) {
+    console.trace(
+      'plugin-node-engine-extender: Error occurred while writing pluginFile configuration');
+    console.log(ex);
+  }
 
   //add the plugin config to the patternlab-object
   if (!patternlab.plugins) {
     patternlab.plugins = [];
   }
   patternlab.plugins.push(pluginConfig);
+  
+  var pluginFiles = glob.sync(__dirname + '/dist/**/*');
+  if (pluginFiles && pluginFiles.length > 0) {
+    for (var i = 0; i < pluginFiles.length; i++) {
+      try {
+        var fileStat = fs.statSync(pluginFiles[i]);
+        if (fileStat.isFile()) {
+          var relativePath = path.relative(__dirname, pluginFiles[i]).replace('dist', '');
+          var writePath = path.join(patternlab.config.paths.public.root,
+            'patternlab-components', 'pattern-lab', pluginName, relativePath);
+          var tabJSFileContents = fs.readFileSync(pluginFiles[i], 'utf8');
+          fs.outputFileSync(writePath, tabJSFileContents);
+        }
+      } catch (ex) {
+        console.trace(
+          'plugin-node-tab: Error occurred while copying pluginFile',
+          pluginFiles[i]);
+        console.log(ex);
+      }
+    }
+  }
   
   //setup listeners if not already active. we also enable and set the plugin as initialized
   if (!patternlab.config.plugins) {
