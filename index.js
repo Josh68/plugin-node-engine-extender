@@ -39,9 +39,15 @@ function registerEvents(patternlab) {
 * This configuration is outputted to the frontend explicitly as well as included in the plugins object.
 *
 */
-function getPluginFrontendConfig() {
+function getPluginFrontendConfig () {
   return {
-    'name':'pattern-lab\/' + pluginName,
+    'name': 'pattern-lab\/' + pluginName, 
+    'templates': [],
+    'stylesheets': [],
+    'javascripts': ['patternlab-components\/pattern-lab\/' + pluginName +
+      '\/js\/' + pluginName + '.js'],
+    'onready': '',
+    'callback': ''
   }
 }
 
